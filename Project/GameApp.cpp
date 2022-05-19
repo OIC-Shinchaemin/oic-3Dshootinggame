@@ -10,11 +10,22 @@
 //INCLUDE
 #include	"GameApp.h"
 #include	"Player.h"
+#include	"Stage.h"
 
 CCamera				gCamera;
+CVector3			gCameraPosition;
+CVector3			gTargetPosition;
+CVector3			gUpVector;
+
 CDirectionalLight	gLight;
 CPlayer				gPlayer;
+CStage				gStage;
+
 bool				gbDebug = false;
+
+
+
+
 /*************************************************************************//*!
 		@brief			アプリケーションの初期化
 		@param			None
@@ -25,22 +36,32 @@ bool				gbDebug = false;
 MofBool CGameApp::Initialize(void){
 	//リソース配置ディレクトリの設定
 	CUtilities::SetCurrentDirectory("Resource");
-	
+
+	gCameraPosition = Vector3(0, 6.0f, -17.0f); // カメラポジション
+	gTargetPosition = Vector3(0, 0, -10);		// ターゲットのポジション
+	gUpVector		= Vector3(0, 1, 0);			// アップベクトル
+
 	gCamera.SetViewPort();
-	gCamera.LookAt(Vector3(0, 6.0f, -17.0f),
-		Vector3(0, 0, -10), Vector3(0, 1, 0));
+
+	gCamera.LookAt(
+		gCameraPosition,	// カメラポジション
+		gTargetPosition,	// ターゲットのポジション
+		gUpVector);			// アップベクトル
+
 	gCamera.PerspectiveFov(MOF_ToRadian(60), 1024.0f / 768.0f, 0.01f, 1000.0f);
 	CGraphicsUtilities::SetCamera(&gCamera);
 
 	gLight.SetDirection(Vector3(-1, -2, 1.5f));
-	gLight.SetDiffuse(MOF_COLOR_WHITE);
-	gLight.SetAmbient(MOF_COLOR_HWHITE);
+	gLight.SetDiffuse(MOF_COLOR_GREEN);
+	gLight.SetAmbient(MOF_COLOR_HGREEN);
 	gLight.SetSpeculer(MOF_COLOR_WHITE);
 	CGraphicsUtilities::SetDirectionalLight(&gLight);
 
 	gPlayer.Load();
+	gStage.Load();
 
 	gPlayer.Initialize();
+	gStage.Initialize();
 
 	return TRUE;
 }
@@ -55,17 +76,21 @@ MofBool CGameApp::Update(void){
 	//キーの更新
 	g_pInput->RefreshKey();
 	gPlayer.Update();
+	gStage.Update();
 
 	if (g_pInput->IsKeyPush(MOFKEY_F1)) {
 		gbDebug = ((gbDebug) ? false : true);
 	}
 
 	float posx = gPlayer.GetPosition().x * 0.4f;
-	CVector3 cpos = gCamera.GetViewPosition();
-	CVector3 tpos = gCamera.GetTargetPosition();
-	CVector3 vup = CVector3(0, 1, 0);
-	cpos.x = tpos.x = posx;
-	gCamera.LookAt(cpos, tpos, vup);
+	
+	gCameraPosition.x = gTargetPosition.x = posx;
+	gCamera.LookAt(gCameraPosition, gTargetPosition, gUpVector);
+	
+	gUpVector = Vector3(0, 1, 0);
+	gUpVector.RotationZ(gPlayer.GetPosition().x / 
+		FIELD_HALF_X * MOF_ToRadian(10));
+
 	gCamera.Update();
 	return TRUE;
 }
@@ -83,8 +108,12 @@ MofBool CGameApp::Render(void){
 	// 画面のクリア
 	g_pGraphics->ClearTarget(0.65f,0.65f,0.67f,0.0f,1.0f,0);
 
-//	g_pGraphics->SetDepthEnable(true);
+	g_pGraphics->SetDepthEnable(true);
+
+	gStage.Render();
+
 	gPlayer.Render();
+	
 
 	if (gbDebug) {
 		CMatrix44 matworld;
@@ -95,6 +124,7 @@ MofBool CGameApp::Render(void){
 
 	if (gbDebug) {
 		gPlayer.RenderDebugText();
+		gStage.RenderDebugText();
 	}
 
 	// 描画の終了
@@ -110,5 +140,6 @@ MofBool CGameApp::Render(void){
 *//**************************************************************************/
 MofBool CGameApp::Release(void){
 	gPlayer.Release();
+	gStage.Release();
 	return TRUE;
 }

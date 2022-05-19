@@ -30,30 +30,53 @@ bool CPlayer::Load(void){
 void CPlayer::Initialize(void){
 	m_Pos = Vector3(0, 0, -FIELD_HALF_Z + 2);
 	m_RotZ = 0;
+	
 }
 
 /**
  * 更新
  */
+#define MAX_SKILLTIME 100
+int SkillTimer = MAX_SKILLTIME;
+
 void CPlayer::Update(void){
 	float Roll = 0;
-	if (g_pInput->IsKeyHold(MOFKEY_LEFT)) {
-		m_Pos.x = max(m_Pos.x - PLAYER_SPEED, -FIELD_HALF_X);
-		Roll -= MOF_MATH_PI;
+	float PlayerSpeed = PLAYER_SPEED;
+	float RotSpeed = MOF_ToRadian(10);
+
+	if (g_pInput->IsKeyHold(MOFKEY_LSHIFT) && SkillTimer > 0 ) {
+		PlayerSpeed *= 4;
+		RotSpeed *= 4;
+		SkillTimer-= 2;
 	}
-	if (g_pInput->IsKeyHold(MOFKEY_RIGHT)) {
-		m_Pos.x = min(m_Pos.x + PLAYER_SPEED, FIELD_HALF_X);
-		Roll += MOF_MATH_PI;
-	}
-	if (g_pInput->IsKeyHold(MOFKEY_UP)) {
-		m_Pos.z = min(m_Pos.z + PLAYER_SPEED, FIELD_HALF_Z);
-	}
-	if (g_pInput->IsKeyHold(MOFKEY_DOWN)) {
-		m_Pos.z = max(m_Pos.z - PLAYER_SPEED, -FIELD_HALF_Z);
+	else
+	{
+		if (MAX_SKILLTIME > SkillTimer)
+			SkillTimer++;
 	}
 
-	
-	float RotSpeed = MOF_ToRadian(10);
+	// 横移動
+	// TODO: 回転して欲しい
+	if (g_pInput->IsKeyHold(MOFKEY_LEFT)) {
+		m_Pos.x = max(m_Pos.x - PlayerSpeed, -FIELD_HALF_X);
+		Roll -= MOF_MATH_PI;
+//		m_RotZ += RotSpeed;
+		m_bMove = true;
+	}
+	else if (g_pInput->IsKeyHold(MOFKEY_RIGHT)) {
+		m_Pos.x = min(m_Pos.x + PlayerSpeed, FIELD_HALF_X);
+		Roll += MOF_MATH_PI;
+//		m_RotZ -= RotSpeed;
+		m_bMove = true;
+	}else{ m_bMove = false; }
+
+	if (g_pInput->IsKeyHold(MOFKEY_UP)) {
+		m_Pos.z = min(m_Pos.z + PlayerSpeed, FIELD_HALF_Z);
+	}
+	if (g_pInput->IsKeyHold(MOFKEY_DOWN)) {
+		m_Pos.z = max(m_Pos.z - PlayerSpeed, -FIELD_HALF_Z);
+	}
+
 	if (Roll == 0) {
 		RotSpeed = min(abs(m_RotZ) * 0.1f, RotSpeed);
 	}
@@ -73,6 +96,10 @@ void CPlayer::Render(void){
 	matWorld.RotationZ(m_RotZ);
 	matWorld.SetTranslation(m_Pos);
 	m_Mesh.Render(matWorld);
+
+	for (int i = 0; i < SkillTimer; i++) {
+		CGraphicsUtilities::RenderString(800 + i * 2, 0, MOF_COLOR_YELLOW,"|");
+	}
 }
 
 /**
@@ -82,6 +109,8 @@ void CPlayer::RenderDebugText(void){
 	// 位置の描画
 	CGraphicsUtilities::RenderString(10,40,MOF_XRGB(0,0,0),
 			"プレイヤー位置 X : %.1f , Y : %.1f , Z : %.1f",m_Pos.x,m_Pos.y,m_Pos.z);
+	
+	
 }
 
 /**
