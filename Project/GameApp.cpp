@@ -16,6 +16,7 @@ CCamera				gCamera;
 CVector3			gCameraPosition;
 CVector3			gTargetPosition;
 CVector3			gUpVector;
+float				gRotUp;
 
 CDirectionalLight	gLight;
 CPlayer				gPlayer;
@@ -50,10 +51,11 @@ MofBool CGameApp::Initialize(void){
 
 	gCamera.PerspectiveFov(MOF_ToRadian(60), 1024.0f / 768.0f, 0.01f, 1000.0f);
 	CGraphicsUtilities::SetCamera(&gCamera);
+	gRotUp = 0;
 
 	gLight.SetDirection(Vector3(-1, -2, 1.5f));
-	gLight.SetDiffuse(MOF_COLOR_GREEN);
-	gLight.SetAmbient(MOF_COLOR_HGREEN);
+	gLight.SetDiffuse(MOF_COLOR_HGREEN);
+	gLight.SetAmbient(MOF_COLOR_HBLUE);
 	gLight.SetSpeculer(MOF_COLOR_WHITE);
 	CGraphicsUtilities::SetDirectionalLight(&gLight);
 
@@ -72,6 +74,7 @@ MofBool CGameApp::Initialize(void){
 		@return			TRUE		成功<br>
 						それ以外	失敗、エラーコードが戻り値となる
 *//**************************************************************************/
+
 MofBool CGameApp::Update(void){
 	//キーの更新
 	g_pInput->RefreshKey();
@@ -88,8 +91,17 @@ MofBool CGameApp::Update(void){
 	gCamera.LookAt(gCameraPosition, gTargetPosition, gUpVector);
 	
 	gUpVector = Vector3(0, 1, 0);
-	gUpVector.RotationZ(gPlayer.GetPosition().x / 
-		FIELD_HALF_X * MOF_ToRadian(10));
+	
+	if (gPlayer.GetMove() != PlayerMove::IDLE){
+		float v = 0;
+		v = (gPlayer.GetMove() == PlayerMove::RIGHT) ? 0.1f : -0.1f;
+		gRotUp = MOF_LERP(gRotUp, v, 0.01f);
+		gUpVector.RotationZ(gRotUp);
+	}
+	else {
+		gRotUp = MOF_LERP(gRotUp, 0, 0.1f);
+		gUpVector.RotationZ(gRotUp);
+	}
 
 	gCamera.Update();
 	return TRUE;
@@ -123,8 +135,10 @@ MofBool CGameApp::Render(void){
 	g_pGraphics->SetDepthEnable(false);
 
 	if (gbDebug) {
-		gPlayer.RenderDebugText();
-		gStage.RenderDebugText();
+//		CGraphicsUtilities::RenderString(10, 40, MOF_XRGB(0, 0, 0),"%f , rot : %f / dest : %f",v,rot, dest);
+
+//gPlayer.RenderDebugText();
+//		gStage.RenderDebugText();
 	}
 
 	// 描画の終了

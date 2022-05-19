@@ -56,19 +56,16 @@ void CPlayer::Update(void){
 	}
 
 	// ‰¡ˆÚ“®
-	// TODO: ‰ñ“]‚µ‚Ä—~‚µ‚¢
 	if (g_pInput->IsKeyHold(MOFKEY_LEFT)) {
 		m_Pos.x = max(m_Pos.x - PlayerSpeed, -FIELD_HALF_X);
 		Roll -= MOF_MATH_PI;
-//		m_RotZ += RotSpeed;
-		m_bMove = true;
+		m_Move = PlayerMove::LEFT;
 	}
 	else if (g_pInput->IsKeyHold(MOFKEY_RIGHT)) {
 		m_Pos.x = min(m_Pos.x + PlayerSpeed, FIELD_HALF_X);
 		Roll += MOF_MATH_PI;
-//		m_RotZ -= RotSpeed;
-		m_bMove = true;
-	}else{ m_bMove = false; }
+		m_Move = PlayerMove::RIGHT;
+	}else{ m_Move = PlayerMove::IDLE; }
 
 	if (g_pInput->IsKeyHold(MOFKEY_UP)) {
 		m_Pos.z = min(m_Pos.z + PlayerSpeed, FIELD_HALF_Z);

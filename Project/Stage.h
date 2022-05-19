@@ -2,8 +2,6 @@
 
 #include "GameDefine.h"
 
-// スクロール速度
-#define		SCROLL_SPEED	(1.0f)
 
 class CStage{
 private:
