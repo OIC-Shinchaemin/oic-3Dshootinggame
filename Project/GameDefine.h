@@ -10,10 +10,25 @@
 // ˆÚ“®‘¬“x
 #define PLAYER_SPEED		(0.1f)
 
+// ˆÚ“®‘¬“x
+#define PLAYERSHOT_SPEED	(0.4f)
+
+// ’e‚Ì”­ËŒÀŠE”
+#define PLAYERSHOT_COUNT (40)
+
+// ’e‚Ì”­ËŠÔŠu
+#define PLAYERSHOT_WAIT (5)
+
 enum PlayerMove {
 	IDLE,
 	LEFT,
-	RIGHT,	
+	RIGHT,
+};
+
+enum PlayerShotMode {
+	MODE_SINGLE,
+	MODE_DOUBLE,
+	MODE_TRIPPLE,
 };
 
 /********************** Stage **********************/

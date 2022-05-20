@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GameDefine.h"
+#include "PlayerShot.h"
 
 class CPlayer{
 private:
@@ -8,6 +9,13 @@ private:
 	CVector3		m_Pos;
 	float			m_RotZ;
 	PlayerMove		m_Move;
+
+	CMeshContainer	m_SMesh;
+	CPlayerShot		m_SArray[PLAYERSHOT_COUNT];
+	int				m_SWait;
+
+	PlayerShotMode	m_ShotMode;
+
 public:
 	CPlayer();
 	~CPlayer();
@@ -19,4 +27,9 @@ public:
 	const CVector3 GetPosition(){ return m_Pos; }
 	void Release();
 	PlayerMove GetMove() { return m_Move; }
+	
+	void UpdateMode();
+	void UpdateSingleShot();
+	void UpdateDoubleShot();
+	void UpdateTrippleShot();
 };
