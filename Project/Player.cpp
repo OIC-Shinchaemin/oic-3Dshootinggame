@@ -10,7 +10,7 @@ m_RotZ(0.0f),
 m_SMesh(),
 m_SArray(),
 m_SWait(),
-m_ShotMode()
+m_SMode()
 {
 }
 
@@ -40,7 +40,7 @@ bool CPlayer::Load(void){
 void CPlayer::Initialize(void){
 	m_Pos = Vector3(0, 0, -FIELD_HALF_Z + 2);
 	m_RotZ = 0;
-	m_ShotMode = PlayerShotMode::MODE_DOUBLE;
+	m_SMode = PlayerShotMode::MODE_DOUBLE;
 
 	for (int i = 0; i < PLAYERSHOT_COUNT; i++) {
 		m_SArray[i].Initialize();
@@ -99,19 +99,19 @@ void CPlayer::Update(void){
 	
 	// キー１：Single、キー2：Double、キー3：Trippleにしてね。
 	UpdateMode();
-
+	
 	if (m_SWait <= 0) {
 		if (g_pInput->IsKeyHold(MOFKEY_Z)) {
 
-			switch (m_ShotMode) {
+			switch (m_SMode) {
 			case MODE_SINGLE:
-				UpdateSingleShot();
+				UpdateSingleMode();
 				break;
 			case MODE_DOUBLE:
-				UpdateDoubleShot();
+				UpdateDoubleMode();
 				break;
 			case MODE_TRIPPLE:
-				UpdateTrippleShot();
+				UpdateTrippleMode();
 				break;
 			}		
 		}
@@ -127,29 +127,30 @@ void CPlayer::Update(void){
 
 void CPlayer::UpdateMode() {
 	if (g_pInput->IsKeyPush(MOFKEY_1)) {
-		m_ShotMode = MODE_SINGLE;
+		m_SMode = MODE_SINGLE;
 	}
 	else if (g_pInput->IsKeyPush(MOFKEY_2)) {
-		m_ShotMode = MODE_DOUBLE;
+		m_SMode = MODE_DOUBLE;
 	}
 	else if (g_pInput->IsKeyPush(MOFKEY_3)) {
-		m_ShotMode = MODE_TRIPPLE;
+		m_SMode = MODE_TRIPPLE;
 	}
 }
 
-void CPlayer::UpdateSingleShot() {
+void CPlayer::UpdateSingleMode() {
 	for (int i = 0; i < PLAYERSHOT_COUNT; i++) {
 		if (m_SArray[i].GetShow()) continue;
 
-		CVector3 spos(0, 0, 0);		
+		CVector3 spos(0, 0, 0);
 		spos += m_Pos;
+		CVector3 spd(0, 0, PLAYERSHOT_SPEED);
 		m_SWait = PLAYERSHOT_WAIT;
-		m_SArray[i].Fire(spos);
+		m_SArray[i].Fire(spos, spd, m_SMode);
 		break;
 	}
 }
 
-void CPlayer::UpdateDoubleShot() {
+void CPlayer::UpdateDoubleMode() {
 	for (int cnt = 0; cnt < 2; cnt++) {
 		for (int i = 0; i < PLAYERSHOT_COUNT; i++) {
 			if (m_SArray[i].GetShow()) continue;
@@ -157,15 +158,29 @@ void CPlayer::UpdateDoubleShot() {
 			CVector3 spos(0.4f * (cnt * 2 - 1), 0, 0);
 			spos.RotationZ(m_RotZ);
 			spos += m_Pos;
+			CVector3 spd(0, 0, PLAYERSHOT_SPEED);
 			m_SWait = PLAYERSHOT_WAIT;
-			m_SArray[i].Fire(spos);
+			m_SArray[i].Fire(spos, spd, m_SMode);
 			break;
 		}
 	}
 }
 
-void CPlayer::UpdateTrippleShot() {
+#define TRIPPLE_RAD		0.05f
+void CPlayer::UpdateTrippleMode() {
+	for (int cnt = 0; cnt < 3; cnt++) {
+		for (int i = 0; i < PLAYERSHOT_COUNT; i++) {
+			if (m_SArray[i].GetShow()) continue;
 
+			CVector3 spos(0.4f * (cnt * 1 - 1), 0, 0);
+			spos.RotationZ(m_RotZ);
+			spos += m_Pos;
+			CVector3 spd(cnt * TRIPPLE_RAD - TRIPPLE_RAD, 0, PLAYERSHOT_SPEED);
+			m_SWait = PLAYERSHOT_WAIT;
+			m_SArray[i].Fire(spos,spd, m_SMode);
+			break;
+		}
+	}
 }
 
 /**

@@ -14,7 +14,7 @@ private:
 	CPlayerShot		m_SArray[PLAYERSHOT_COUNT];
 	int				m_SWait;
 
-	PlayerShotMode	m_ShotMode;
+	PlayerShotMode	m_SMode;
 
 public:
 	CPlayer();
@@ -29,7 +29,7 @@ public:
 	PlayerMove GetMove() { return m_Move; }
 	
 	void UpdateMode();
-	void UpdateSingleShot();
-	void UpdateDoubleShot();
-	void UpdateTrippleShot();
+	void UpdateSingleMode();
+	void UpdateDoubleMode();
+	void UpdateTrippleMode();
 };

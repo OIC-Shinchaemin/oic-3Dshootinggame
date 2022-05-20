@@ -6,7 +6,10 @@
 CPlayerShot::CPlayerShot() :
 m_pMesh(NULL),
 m_Pos(0.0f,0.0f,0.0f),
-m_bShow(false){
+m_Speed(0.0f, 0.0f, 0.0f),
+m_bShow(false),
+m_Mode()
+{
 }
 
 /**
@@ -26,21 +29,49 @@ void CPlayerShot::Initialize(void){
 /**
  * î≠éÀ
  */
-void CPlayerShot::Fire(const Vector3& p){
+void CPlayerShot::Fire(const Vector3& p, const Vector3& s, PlayerShotMode m){
 	m_Pos = p;
+	m_Speed = s;
+	m_Mode = m;
 	m_bShow = true;
 }
 
 /**
  * çXêV
  */
-void CPlayerShot::Update(void){
+void CPlayerShot::Update(){
 	if (m_bShow) {
-		m_Pos.z += PLAYERSHOT_SPEED;
+		
+		UpdateMode();
+		m_Pos += m_Speed;
 		if (FIELD_HALF_Z < m_Pos.z) {
 			m_bShow = false;
 		}
 	}
+}
+
+void CPlayerShot::UpdateMode(){	
+	switch (m_Mode)
+	{
+	case MODE_SINGLE:
+		UpdateSingleMode();
+		break;
+	case MODE_DOUBLE:
+		UpdateDoubleMode();
+		break;
+	case MODE_TRIPPLE:
+		UpdateTrippleMode();
+		break;
+	}
+}
+
+void CPlayerShot::UpdateSingleMode() {
+}
+
+void CPlayerShot::UpdateDoubleMode() {
+}
+
+void CPlayerShot::UpdateTrippleMode() {
 }
 
 /**
