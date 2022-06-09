@@ -21,7 +21,7 @@ float				gRotUp;
 
 CDirectionalLight	gLight;
 CPlayer				gPlayer;
-CEnemy				gEnemyArray[ENEMY_COUNT];
+CEnemy				gEnemyArray[ENEMY_MAX_COUNT];
 CEnemyShot			gShotArray[ENEMYSHOT_COUNT];
 CMeshContainer		gEnemyShotMesh;
 
@@ -71,10 +71,11 @@ MofBool CGameApp::Initialize(void){
 	// ステージの状態初期化
 	gStage.Initialize(&gStg1EnemyStart);
 	// 敵の初期化
-	for (int i = 0; i < ENEMY_COUNT; i++)
+	for (int i = 0; i < ENEMY_MAX_COUNT; i++)
 	{
 		gEnemyArray[i].Initialize();
 	}
+
 	// 敵弾の初期化
 	for (int i = 0; i < ENEMYSHOT_COUNT; i++)
 	{
@@ -96,12 +97,12 @@ MofBool CGameApp::Update(void){
 	//キーの更新
 	g_pInput->RefreshKey();
 	
-	gStage.Update(gEnemyArray, ENEMY_COUNT);
+	gStage.Update(gEnemyArray, ENEMY_MAX_COUNT);
 
 	gPlayer.Update();
 
 	// 敵の更新
-	for (int i = 0; i < ENEMY_COUNT; i++)
+	for (int i = 0; i < ENEMY_MAX_COUNT; i++)
 	{
 		gEnemyArray[i].SetTargetPos(gPlayer.GetPosition());
 		gEnemyArray[i].Update(gShotArray, ENEMYSHOT_COUNT);
@@ -113,7 +114,7 @@ MofBool CGameApp::Update(void){
 	}
 
 	// 敵との当たり判定
-	for (int i = 0; i < ENEMY_COUNT; i++)
+	for (int i = 0; i < ENEMY_MAX_COUNT; i++)
 	{
 		gPlayer.CollisionEnemy(gEnemyArray[i]);
 	}
@@ -132,7 +133,7 @@ MofBool CGameApp::Update(void){
 		// ゲーム内のオブジェクトをすべて初期化する
 		gPlayer.Initialize();
 		gStage.Initialize(&gStg1EnemyStart);
-		for (int i = 0; i < ENEMY_COUNT; i++)
+		for (int i = 0; i < ENEMY_MAX_COUNT; i++)
 		{
 			gEnemyArray[i].Initialize();
 		}
@@ -185,7 +186,7 @@ MofBool CGameApp::Render(void){
 	gPlayer.Render();
 	
 	// 敵の描画
-	for (int i = 0; i < ENEMY_COUNT; i++)
+	for (int i = 0; i < ENEMY_MAX_COUNT; i++)
 	{
 		gEnemyArray[i].Render();
 	}
@@ -199,7 +200,7 @@ MofBool CGameApp::Render(void){
 		// プレイヤーのデバッグ描画
 		gPlayer.RenderDebug();
 		// 敵のデバッグ描画
-		for (int i = 0; i < ENEMY_COUNT; i++)
+		for (int i = 0; i < ENEMY_MAX_COUNT; i++)
 		{
 			gEnemyArray[i].RenderDebug();
 		}
@@ -219,7 +220,7 @@ MofBool CGameApp::Render(void){
 		gPlayer.RenderDebugText();
 		gStage.RenderDebugText();
 		// 敵のデバッグ文字描画
-		for (int i = 0; i < ENEMY_COUNT; i++)
+		for (int i = 0; i < ENEMY_MAX_COUNT; i++)
 		{
 			gEnemyArray[i].RenderDebugText(i);
 		}

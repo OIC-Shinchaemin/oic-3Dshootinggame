@@ -16,12 +16,12 @@ private:
 	int m_ShotWait;
 	int m_ShotWaitSet;
 	Vector3 m_TargetPos;
-
+	ENEMYSTART* m_pEnemyStart;
 public:
 	CEnemy();
 	~CEnemy();
 	void Initialize();
-	void Start(const Vector3& p);
+	void Start(ENEMYSTART* pSt, int index);
 	void Update(CEnemyShot* shot, int smax);
 	void Render();
 	void RenderDebugText(int i);

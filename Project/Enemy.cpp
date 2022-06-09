@@ -1,22 +1,5 @@
 #include "Enemy.h"
 
-// 敵の移動
-ANIM_DATA g_EnemyAnimPosY[4] = {
-{ 1.0f,-10.0f,EASE_LINEAR },
-{ 2.0f,0.0f,EASE_LINEAR },
-{ 3.0f,-5.0f,EASE_INOUT_SINE },
-{ 4.0f,0.0f,EASE_IN_SINE },
-};
-
-ANIM_DATA g_EnemyAnimPosZ[6] = {
-{ 0.0f,-FIELD_HALF_Z,EASE_LINEAR },
-{ 1.0f,FIELD_HALF_Z - 10.0f,EASE_LINEAR },
-{ 2.0f,FIELD_HALF_Z,EASE_OUT_SINE },
-{ 3.0f,0.0f,EASE_IN_SINE },
-{ 4.0f,FIELD_HALF_Z-10,EASE_OUT_SINE },
-{ 5.0f,-FIELD_HALF_Z,EASE_LINEAR },
-};
-
 /**
  * コンストラクタ
  *
@@ -59,8 +42,9 @@ void CEnemy::Initialize(){
  * 開始
  *
  */
-void CEnemy::Start(const Vector3& p){
-	m_Pos = p;
+void CEnemy::Start(ENEMYSTART* pSt, int index){
+	m_pEnemyStart = pSt;
+	m_Pos = Vector3(m_pEnemyStart->PosX[index],0.0f,0.0f);
 	m_Rot = Vector3(0, 0, 0);
 	m_bShow = true;
 	m_AnimTime = 0;
@@ -83,11 +67,11 @@ void CEnemy::Update(CEnemyShot* shot, int smax) {
 	// 時間を進める
 	m_AnimTime += CUtilities::GetFrameSecond();
 	// アニメーション
-	m_Pos.y = InterpolationAnim(m_AnimTime, g_EnemyAnimPosY, 4);
-	m_Pos.z = InterpolationAnim(m_AnimTime, g_EnemyAnimPosZ, 6);
+	m_Pos.y = InterpolationAnim(m_AnimTime, m_pEnemyStart->AnimY, 4);
+	m_Pos.z = InterpolationAnim(m_AnimTime, m_pEnemyStart->AnimZ, 6);
 	
 	// プレイヤーと同じ高さまで移動したら
-	if (g_EnemyAnimPosY[1].Time < m_AnimTime)
+	if (m_pEnemyStart->AnimY[1].Time < m_AnimTime)
 	{
 		// 弾の発射
 		if (m_ShotWait <= 0)
@@ -116,7 +100,7 @@ void CEnemy::Update(CEnemyShot* shot, int smax) {
 	}
 	
 	// アニメーション終了で消去
-	if (g_EnemyAnimPosZ[5].Time < m_AnimTime)
+	if (m_pEnemyStart->AnimZ[5].Time < m_AnimTime)
 	{
 		m_bShow = false;
 	}

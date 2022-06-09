@@ -26,7 +26,7 @@ CPlayer::~CPlayer(){
  */
 bool CPlayer::Load(void){
 	// ƒƒbƒVƒ…‚Ì“Ç‚İ‚İ
-	m_Mesh.Load("player.mom");
+	m_Mesh.Load("player2.mom");
 	m_SMesh.Load("pshot.mom");
 
 	for (int i = 0; i < PLAYERSHOT_COUNT; i++) {

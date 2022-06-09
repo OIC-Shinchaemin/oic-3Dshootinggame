@@ -36,7 +36,9 @@ enum PlayerShotMode {
 #define		SCROLL_SPEED	(1.0f)
 
 // ìG
+#define ENEMY_MAX_COUNT		(20)
 #define ENEMY_COUNT			(20)
+
 #define ENEMY_MAX_HP		(5)
 #define ENEMYSHOT_COUNT		(200)
 
@@ -53,4 +55,14 @@ struct ANIM_DATA {
 	float Value;
 	EASING_TYPE EasingType;
 };
+
+// ìGÇÃèoåªèÓïÒç\ë¢ëÃ
+struct ENEMYSTART {
+	int Count;
+	float* PosX;
+	float* Scroll;
+	ANIM_DATA* AnimY;
+	ANIM_DATA* AnimZ;
+};
+
 float InterpolationAnim(float AnimTime, ANIM_DATA* AnimData, int cnt);

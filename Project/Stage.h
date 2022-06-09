@@ -3,12 +3,7 @@
 #include "GameDefine.h"
 #include "Enemy.h"
 
-// “G‚ÌoŒ»î•ñ\‘¢‘Ì
-typedef struct tag_ENEMYSTART {
-	int Count;
-	float* PosX;
-	float* Scroll;
-}ENEMYSTART;
+
 
 class CStage{
 private:
