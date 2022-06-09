@@ -11,6 +11,7 @@
 #include	"GameApp.h"
 #include	"Player.h"
 #include	"Stage.h"
+#include	"Stage1.h"
 
 CCamera				gCamera;
 CVector3			gCameraPosition;
@@ -20,12 +21,13 @@ float				gRotUp;
 
 CDirectionalLight	gLight;
 CPlayer				gPlayer;
+CEnemy				gEnemyArray[ENEMY_COUNT];
+CEnemyShot			gShotArray[ENEMYSHOT_COUNT];
+CMeshContainer		gEnemyShotMesh;
+
 CStage				gStage;
 
 bool				gbDebug = false;
-
-
-
 
 /*************************************************************************//*!
 		@brief			アプリケーションの初期化
@@ -62,8 +64,23 @@ MofBool CGameApp::Initialize(void){
 	gPlayer.Load();
 	gStage.Load();
 
+	// 敵弾の素材読み込み
+	gEnemyShotMesh.Load("eshot.mom");
+
 	gPlayer.Initialize();
-	gStage.Initialize();
+	// ステージの状態初期化
+	gStage.Initialize(&gStg1EnemyStart);
+	// 敵の初期化
+	for (int i = 0; i < ENEMY_COUNT; i++)
+	{
+		gEnemyArray[i].Initialize();
+	}
+	// 敵弾の初期化
+	for (int i = 0; i < ENEMYSHOT_COUNT; i++)
+	{
+		gShotArray[i].Initialize();
+		gShotArray[i].SetMesh(&gEnemyShotMesh);
+	}
 
 	return TRUE;
 }
@@ -78,11 +95,52 @@ MofBool CGameApp::Initialize(void){
 MofBool CGameApp::Update(void){
 	//キーの更新
 	g_pInput->RefreshKey();
+	
+	gStage.Update(gEnemyArray, ENEMY_COUNT);
+
 	gPlayer.Update();
-	gStage.Update();
+
+	// 敵の更新
+	for (int i = 0; i < ENEMY_COUNT; i++)
+	{
+		gEnemyArray[i].SetTargetPos(gPlayer.GetPosition());
+		gEnemyArray[i].Update(gShotArray, ENEMYSHOT_COUNT);
+	}
+	// 敵弾の更新
+	for (int i = 0; i < ENEMYSHOT_COUNT; i++)
+	{
+		gShotArray[i].Update();
+	}
+
+	// 敵との当たり判定
+	for (int i = 0; i < ENEMY_COUNT; i++)
+	{
+		gPlayer.CollisionEnemy(gEnemyArray[i]);
+	}
+	// 敵弾との当たり判定
+	for (int i = 0; i < ENEMYSHOT_COUNT; i++)
+	{
+		gPlayer.CollisionEnemyShot(gShotArray[i]);
+	}
 
 	if (g_pInput->IsKeyPush(MOFKEY_F1)) {
 		gbDebug = ((gbDebug) ? false : true);
+	}
+	// ゲームオーバー表示後に Enter で初期化を行う
+	if (g_pInput->IsKeyPush(MOFKEY_RETURN) && gPlayer.IsDead())
+	{
+		// ゲーム内のオブジェクトをすべて初期化する
+		gPlayer.Initialize();
+		gStage.Initialize(&gStg1EnemyStart);
+		for (int i = 0; i < ENEMY_COUNT; i++)
+		{
+			gEnemyArray[i].Initialize();
+		}
+		for (int i = 0; i < ENEMYSHOT_COUNT; i++)
+		{
+			gShotArray[i].Initialize();
+		}
+
 	}
 
 	float posx = gPlayer.GetPosition().x * 0.4f;
@@ -126,19 +184,52 @@ MofBool CGameApp::Render(void){
 
 	gPlayer.Render();
 	
+	// 敵の描画
+	for (int i = 0; i < ENEMY_COUNT; i++)
+	{
+		gEnemyArray[i].Render();
+	}
+	// 敵弾の描画
+	for (int i = 0; i < ENEMYSHOT_COUNT; i++)
+	{
+		gShotArray[i].Render();
+	}
 
 	if (gbDebug) {
+		// プレイヤーのデバッグ描画
+		gPlayer.RenderDebug();
+		// 敵のデバッグ描画
+		for (int i = 0; i < ENEMY_COUNT; i++)
+		{
+			gEnemyArray[i].RenderDebug();
+		}
+		// 敵弾のデバッグ描画
+		for (int i = 0; i < ENEMYSHOT_COUNT; i++)
+		{
+			gShotArray[i].RenderDebug();
+		}
+
 		CMatrix44 matworld;
 		matworld.Scaling(FIELD_HALF_X * 2, 1, FIELD_HALF_Z * 2);
-		CGraphicsUtilities::RenderPlane(matworld, Vector4(1, 1, 1, 0.4f));
+		CGraphicsUtilities::RenderPlane(matworld, Vector4(1, 1, 1, 0.4f));		
 	}
 	g_pGraphics->SetDepthEnable(false);
 
 	if (gbDebug) {
-//		CGraphicsUtilities::RenderString(10, 40, MOF_XRGB(0, 0, 0),"%f , rot : %f / dest : %f",v,rot, dest);
+		gPlayer.RenderDebugText();
+		gStage.RenderDebugText();
+		// 敵のデバッグ文字描画
+		for (int i = 0; i < ENEMY_COUNT; i++)
+		{
+			gEnemyArray[i].RenderDebugText(i);
+		}
+	}
 
-//gPlayer.RenderDebugText();
-//		gStage.RenderDebugText();
+	// ゲームオーバー表示
+	if (gPlayer.IsDead())
+	{
+		CGraphicsUtilities::RenderString(240, 350, MOF_COLOR_RED,
+			"ゲームオーバー ： Enter キーでもう一度最初から");
 	}
 
 	// 描画の終了
@@ -155,5 +246,7 @@ MofBool CGameApp::Render(void){
 MofBool CGameApp::Release(void){
 	gPlayer.Release();
 	gStage.Release();
+	gEnemyShotMesh.Release();
+
 	return TRUE;
 }

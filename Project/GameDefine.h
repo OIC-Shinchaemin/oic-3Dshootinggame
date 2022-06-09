@@ -35,3 +35,22 @@ enum PlayerShotMode {
 // スクロール速度
 #define		SCROLL_SPEED	(1.0f)
 
+// 敵
+#define ENEMY_COUNT			(20)
+#define ENEMY_MAX_HP		(5)
+#define ENEMYSHOT_COUNT		(200)
+
+// イージングの種類
+enum EASING_TYPE {
+	EASE_LINEAR,
+	EASE_IN_SINE,
+	EASE_OUT_SINE,
+	EASE_INOUT_SINE,
+};
+// アニメーション用構造体
+struct ANIM_DATA {
+	float Time;
+	float Value;
+	EASING_TYPE EasingType;
+};
+float InterpolationAnim(float AnimTime, ANIM_DATA* AnimData, int cnt);
