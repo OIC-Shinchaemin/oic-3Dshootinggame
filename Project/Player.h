@@ -18,6 +18,9 @@ private:
 	PlayerShotMode	m_SMode;
 
 	bool			m_bDead;
+	int				m_Life;
+	bool			m_Restart;
+
 public:
 	CPlayer();
 	~CPlayer();

@@ -110,7 +110,7 @@ MofBool CGameApp::Update(void){
 	// “G’e‚ÌXV
 	for (int i = 0; i < ENEMYSHOT_COUNT; i++)
 	{
-		gShotArray[i].Update();
+		gShotArray[i].Update(gPlayer.GetPosition());
 	}
 
 	// “G‚Æ‚Ì“–‚½‚è”»’è

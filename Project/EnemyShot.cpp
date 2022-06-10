@@ -45,14 +45,16 @@ void CEnemyShot::Fire(const Vector3& p,const Vector3& s){
  * 更新
  *
  */
-void CEnemyShot::Update(){
+void CEnemyShot::Update(const Vector3& p){
 	// 非表示
 	if(!m_bShow)
 	{
 		return;
 	}
 	// 速度を利用した移動
-	m_Pos += m_Spd;
+	m_Pos = MOF_LERP(m_Pos, p, 0.02f);
+
+//	m_Pos += m_Spd;
 	// 領域外に出たら消去
 	float inflate = 1.0f;
 	if (m_Pos.x < -FIELD_HALF_X - inflate || FIELD_HALF_X + inflate < m_Pos.x ||

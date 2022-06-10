@@ -7,6 +7,9 @@
 #define FIELD_HALF_Z (14.0f)
 
 /********************** Player **********************/
+// プレイヤーのライフ
+#define PLAYER_MAX_LIFE		(5)
+
 // 移動速度
 #define PLAYER_SPEED		(0.1f)
 
@@ -14,10 +17,10 @@
 #define PLAYERSHOT_SPEED	(0.4f)
 
 // 弾の発射限界数
-#define PLAYERSHOT_COUNT (40)
+#define PLAYERSHOT_COUNT	(40)
 
 // 弾の発射間隔
-#define PLAYERSHOT_WAIT (5)
+#define PLAYERSHOT_WAIT		(5)
 
 enum PlayerMove {
 	IDLE,
@@ -35,6 +38,7 @@ enum PlayerShotMode {
 // スクロール速度
 #define		SCROLL_SPEED	(1.0f)
 
+/********************** Enemy **********************/
 // 敵
 #define ENEMY_MAX_COUNT		(20)
 #define ENEMY_COUNT			(20)

@@ -11,7 +11,9 @@ m_SMesh(),
 m_bDead(false),
 m_SArray(),
 m_SWait(),
-m_SMode()
+m_SMode(),
+m_Life(PLAYER_MAX_LIFE),
+m_Restart(false)
 {
 }
 
@@ -43,6 +45,8 @@ void CPlayer::Initialize(void){
 	m_RotZ = 0;
 	m_SMode = PlayerShotMode::MODE_DOUBLE;
 	m_bDead = false;
+	m_Life = PLAYER_MAX_LIFE;
+	m_Restart = false;
 	for (int i = 0; i < PLAYERSHOT_COUNT; i++) {
 		m_SArray[i].Initialize();
 	}
@@ -57,6 +61,22 @@ int SkillTimer = MAX_SKILLTIME;
 void CPlayer::Update(void){
 	if (m_bDead)
 	{
+		return;
+	}
+	if (m_Restart)
+	{
+		CVector3 startpos = Vector3(0, 0, -FIELD_HALF_Z + 1);
+		m_Pos = MOF_LERP(m_Pos, startpos, 0.05f);
+
+		if (m_Pos.z >= -FIELD_HALF_Z) {
+			m_Restart = false;
+			m_Pos = startpos;
+		}
+
+		for (int i = 0; i < PLAYERSHOT_COUNT; i++) {
+			m_SArray[i].Update();
+		}
+
 		return;
 	}
 
@@ -218,6 +238,8 @@ void CPlayer::CollisionEnemy(CEnemy& ene) {
 }
 
 void CPlayer::CollisionEnemyShot(CEnemyShot& shot) {
+	if (m_Restart) return;
+
 	CSphere ps = GetSphere();
 	if (!shot.GetShow())
 	{
@@ -226,7 +248,16 @@ void CPlayer::CollisionEnemyShot(CEnemyShot& shot) {
 	CSphere ss = shot.GetSphere();
 	if (ss.CollisionSphere(ps))
 	{
-		m_bDead = true;
+		if (m_Life > 0) {
+			m_Life--;
+			m_Restart = true;
+			// 爆発のエフェクト
+			// Playerポジション変更
+			m_Pos = Vector3(0, 20, -25);
+		}
+
+		else m_bDead = true;
+
 		shot.SetShow(false);
 	}
 }
@@ -250,6 +281,10 @@ void CPlayer::Render(void){
 
 	for (int i = 0; i < PLAYERSHOT_COUNT; i++) {
 		m_SArray[i].Render();
+	}
+
+	for (int i = 0; i < m_Life ; i++) {
+		CGraphicsUtilities::RenderString(980 - i * 30, 700, MOF_COLOR_BLACK, "A");
 	}
 }
 

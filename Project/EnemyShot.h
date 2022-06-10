@@ -30,7 +30,7 @@ public:
 	 * XV
 	 *
 	 */
-	void Update();
+	void Update(const Vector3& p);
 	
 	/**
 	 * •`‰æ
